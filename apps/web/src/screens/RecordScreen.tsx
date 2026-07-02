@@ -1,7 +1,7 @@
 import { ArrowLeft, CheckCircle2, FileText, Headphones, ScanLine, ShieldCheck, Type, Volume2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { VoiceMintingModal } from '../components/modals'
-import { RecordHeaderActions, RecordingGuideModal, RecordingStateMachine, type HeaderMenuAction, type RecordingCompletion } from '../components/recording'
+import { FeedbackModal, VoiceMintingModal } from '../components/modals'
+import { RecordHeaderActions, RecordingStateMachine, type HeaderMenuAction, type RecordingCompletion } from '../components/recording'
 import { Toast } from '../components/ui'
 import { useUserAssets } from '../contexts'
 import type { RecordingControllerState } from '../hooks'
@@ -9,7 +9,7 @@ import type { BlockchainLedgerReceipt, MintLicenseTier, VoiceAsset, VoiceTask } 
 
 const defaultPrompt = '江蟹生，新鲜个江蟹生！今朝潮水正好，阿妈叫我早点去江边，买两斤转来烧。'
 
-export function RecordScreen({ task, onBack, onSubmit, onMint, standalone = false }: {
+export function RecordScreen({ task, onBack, onSubmit, onMint, onOpenGuide, standalone = false }: {
   task?: VoiceTask
   onBack: () => void
   onSubmit: (input: {
@@ -21,6 +21,7 @@ export function RecordScreen({ task, onBack, onSubmit, onMint, standalone = fals
     allowShortArchive: boolean
   }) => Promise<VoiceAsset>
   onMint: (asset: VoiceAsset, tier: MintLicenseTier) => Promise<{ asset: VoiceAsset; receipt: BlockchainLedgerReceipt }>
+  onOpenGuide: () => void
   standalone?: boolean
 }) {
   const { appendAsset } = useUserAssets()
@@ -31,8 +32,8 @@ export function RecordScreen({ task, onBack, onSubmit, onMint, standalone = fals
   const [submitted, setSubmitted] = useState<VoiceAsset | null>(null)
   const [mintAsset, setMintAsset] = useState<VoiceAsset | null>(null)
   const [completedRecording, setCompletedRecording] = useState<RecordingCompletion | null>(null)
-  const [isGuideOpen, setIsGuideOpen] = useState(false)
   const [headerMessage, setHeaderMessage] = useState<string | null>(null)
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
   const activeTask = task || { id: undefined, title: '鹿城街巷叫卖声采集', dialect: '温州话', region: '鹿城区' }
   const promptText = customMode ? customText : (task?.script || defaultPrompt)
 
@@ -86,9 +87,16 @@ export function RecordScreen({ task, onBack, onSubmit, onMint, standalone = fals
   return (
     <div className="screen record-screen record-workbench">
       <header className="record-header">
-        <div className="flex w-[88px] items-center justify-start">{standalone && !task ? null : <button className="icon-button" onClick={onBack} aria-label="返回"><ArrowLeft size={20} /></button>}</div>
-        <div className="min-w-0 flex-1 px-1"><span className="eyebrow">记录家乡的声音</span><h1>开始录音</h1></div>
-        <RecordHeaderActions onOpenGuide={() => setIsGuideOpen(true)} onMenuAction={handleHeaderMenuAction} />
+        <div className="flex w-[96px] items-center justify-start">
+          {standalone
+            ? <button type="button" onClick={() => setIsFeedbackOpen(true)} className="record-feedback-entry" aria-label="向录音小助手反馈问题">
+                <img src="/brand/ouvoice-mascot-warm.png" alt="山茶花录音小助手" className="record-header-mascot" />
+                <span>点我反馈</span>
+              </button>
+            : <button className="icon-button" onClick={onBack} aria-label="返回"><ArrowLeft size={20} /></button>}
+        </div>
+        <div className="min-w-0 flex-1 px-1"><h1>开始录音</h1></div>
+        <RecordHeaderActions onOpenGuide={onOpenGuide} onMenuAction={handleHeaderMenuAction} />
       </header>
 
       <section className="active-dialect-bar">
@@ -130,9 +138,11 @@ export function RecordScreen({ task, onBack, onSubmit, onMint, standalone = fals
         setMintAsset(null)
         setSubmitted(asset)
       }} />}
-      <RecordingGuideModal open={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+      <FeedbackModal open={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} onSubmitted={() => {
+        setIsFeedbackOpen(false)
+        setHeaderMessage('谢谢你的反馈，我们已经记下来了')
+      }} />
       {headerMessage && <Toast message={headerMessage} onClose={() => setHeaderMessage(null)} />}
     </div>
   )
 }
-

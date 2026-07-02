@@ -1,4 +1,4 @@
-import { AlertOctagon, BrainCircuit, ChevronDown, CircleDollarSign, Coins, DatabaseZap, FlaskConical, GlobeLock, HandHeart, LoaderCircle, LockKeyhole, TrendingUp, UserCheck, UserRoundX, X } from 'lucide-react'
+import { AlertOctagon, BrainCircuit, Check, ChevronDown, CircleDollarSign, Coins, DatabaseZap, FlaskConical, GlobeLock, HandHeart, LoaderCircle, LockKeyhole, TrendingUp, UserCheck, UserRoundX, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppStore, useAssetAuthorization, useUserAssets } from '../contexts'
@@ -24,6 +24,7 @@ export function RevenueScreen({ data, onToast, onRevoke }: {
   const [selectedAssetId, setSelectedAssetId] = useState('')
   const [showRecallModal, setShowRecallModal] = useState(false)
   const [showEnableModal, setShowEnableModal] = useState(false)
+  const [showAssetMenu, setShowAssetMenu] = useState(false)
   const [recalling, setRecalling] = useState(false)
 
   const selectedAsset = userAssets.find((asset) => asset.id === selectedAssetId) ?? userAssets[0]
@@ -99,9 +100,9 @@ export function RevenueScreen({ data, onToast, onRevoke }: {
         </div>
       </section>
 
-      <section>
+      <section className="revenue-ledger-section">
         <div className="mb-3 flex items-end justify-between"><div><span className="font-mono text-micro tracking-[.08em] text-content-muted">钱从哪里来，一目了然</span><h2 className="mt-1 font-display text-lg text-content-primary">最近的回馈</h2></div><span className="flex items-center gap-1 font-mono text-micro text-success"><i className="h-1 w-1 rounded-full bg-success" />已到账</span></div>
-        <div className="overflow-hidden rounded-cyber border border-subtle bg-surface/80">
+        <div className="overflow-hidden rounded-2xl border border-subtle bg-surface/80 [clip-path:inset(0_round_1rem)]">
           {ledger.map((entry) => (
             <div key={entry.id} className="flex items-center gap-2.5 border-b border-white/5 px-3 py-3 last:border-0">
               <span className="grid h-8 w-8 flex-none place-items-center rounded-lg bg-teal/10 text-teal"><Coins size={16} /></span>
@@ -112,17 +113,50 @@ export function RevenueScreen({ data, onToast, onRevoke }: {
         </div>
       </section>
 
-      <section>
+      <section className="revenue-permissions-section">
         <div className="mb-3 flex items-end justify-between"><div><span className="font-mono text-micro tracking-[.08em] text-content-muted">你随时可以改变主意</span><h2 className="mt-1 font-display text-lg text-content-primary">这段声音可以怎么用</h2></div><span className="flex items-center gap-1 rounded-full border border-teal/20 bg-teal/10 px-2 py-1 font-mono text-micro text-teal-700"><LockKeyhole size={10} />由你决定</span></div>
 
         <div className="relative isolate overflow-hidden rounded-2xl border border-subtle bg-surface/80 transform-gpu [clip-path:inset(0_round_1rem)]" data-testid="licensing-settings-panel">
-          <label className="relative flex items-center gap-2 overflow-hidden rounded-t-2xl border-b border-subtle bg-surface-raised px-3 py-3">
-            <DatabaseZap size={16} className="text-gold" />
-            <select value={selectedAsset?.id || ''} onChange={(event) => setSelectedAssetId(event.target.value)} className="min-w-0 flex-1 appearance-none bg-transparent text-[10px] text-content-secondary outline-none">
-              {userAssets.map((asset) => <option key={asset.id} value={asset.id}>{asset.id} · {asset.dialect}</option>)}
-            </select>
-            <ChevronDown size={15} className="pointer-events-none text-content-muted" />
-          </label>
+          <div className="overflow-hidden rounded-t-2xl border-b border-subtle bg-[#f4efe8]">
+            <button
+              type="button"
+              onClick={() => setShowAssetMenu((open) => !open)}
+              aria-expanded={showAssetMenu}
+              className="flex min-h-[58px] w-full items-center gap-3 px-3 py-2.5 text-left"
+            >
+              <span className="grid h-9 w-9 flex-none place-items-center rounded-xl bg-[#fff0c5] text-[#a86626]"><DatabaseZap size={17} /></span>
+              <span className="min-w-0 flex-1">
+                <small className="block text-[8px] text-[#8d8379]">选择要管理的录音</small>
+                <strong className="mt-1 block truncate text-[10px] font-semibold text-[#443c35]">{selectedAsset ? `${selectedAsset.id} · ${selectedAsset.dialect}` : '暂无录音'}</strong>
+              </span>
+              <ChevronDown size={16} className={`flex-none text-[#8d8379] transition-transform ${showAssetMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showAssetMenu && (
+              <div className="mx-3 mb-3 max-h-52 space-y-1.5 overflow-y-auto rounded-2xl border border-[#e5d8ca] bg-[#fffaf2] p-2 shadow-[0_12px_30px_rgba(74,58,43,.10)]" role="listbox" aria-label="选择声音">
+                {userAssets.map((asset) => {
+                  const active = selectedAsset?.id === asset.id
+                  return (
+                    <button
+                      key={asset.id}
+                      type="button"
+                      role="option"
+                      aria-selected={active}
+                      onClick={() => {
+                        setSelectedAssetId(asset.id)
+                        setShowAssetMenu(false)
+                      }}
+                      className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors ${active ? 'bg-[#f8dfb6] text-[#70451f]' : 'text-[#514941] hover:bg-[#f7f0e7]'}`}
+                    >
+                      <span className={`grid h-7 w-7 flex-none place-items-center rounded-lg ${active ? 'bg-[#d88a48] text-white' : 'bg-[#eee6dc] text-[#847a71]'}`}>{active ? <Check size={15} /> : <DatabaseZap size={14} />}</span>
+                      <span className="min-w-0 flex-1"><strong className="block text-[10px] font-semibold">{asset.id}</strong><small className="mt-0.5 block truncate text-[8px] opacity-70">{asset.dialect}</small></span>
+                      {active && <span className="rounded-full bg-white/65 px-2 py-1 text-[8px] font-semibold">当前</span>}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
           <div className="flex items-center justify-between border-b border-subtle bg-teal/[.04] px-3 py-2 font-mono text-micro"><span className="text-content-muted">正在设置 · {selectedAsset?.id || '暂无声音'}</span><i className={`rounded-full px-2 py-1 not-italic ${recalled ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>{recalled ? '仅自己保存' : `已开放 ${activePermissionCount} 项`}</i></div>
 
           <div className="overflow-hidden rounded-b-2xl bg-surface/80">

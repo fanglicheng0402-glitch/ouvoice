@@ -975,6 +975,49 @@ body {
   background-image: radial-gradient(circle, rgba(151, 112, 76, .14) 1px, transparent 1.4px) !important;
   background-size: 18px 18px !important;
 }
+.record-header-mascot {
+  display: block;
+  width: 66px;
+  height: 74px;
+  object-fit: contain;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 10px 14px rgba(139, 79, 38, .13));
+  animation: mascot-breathe 4.8s ease-in-out infinite;
+}
+.record-feedback-entry {
+  position: relative;
+  display: flex;
+  width: 94px;
+  min-height: 74px;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 18px;
+  text-align: left;
+}
+.record-feedback-entry > span {
+  position: absolute;
+  right: -15px;
+  top: 1px;
+  padding: 5px 9px;
+  border: 1px solid #eadbc9;
+  border-radius: 999px;
+  background: #fffaf0;
+  box-shadow: 0 5px 13px rgba(74,58,43,.10);
+  color: #a05b38;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.record-feedback-entry:focus-visible { outline: 2px solid #d88a48; outline-offset: 2px; }
+.record-feedback-entry:hover .record-header-mascot { transform: translateY(-4px) rotate(1deg) scale(1.03); }
+@keyframes mascot-breathe {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-4px) rotate(1deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .record-header-mascot { animation: none; }
+}
 .ou-warm .environment-checks > div { border: 0; border-radius: 16px; background: #ffffff; color: #5d574f; box-shadow: 0 7px 20px rgba(74, 58, 43, .05); }
 .ou-warm .environment-checks small { color: #8e867d; }
 .ou-warm .legal-note { color: #898178; font-size: 9px; }
@@ -1060,6 +1103,14 @@ body {
 .ou-warm [data-testid="revenue-scroll-container"] > header,
 .ou-warm [data-testid="revenue-scroll-container"] > section { flex-shrink: 0; }
 .ou-warm [data-testid="revenue-scroll-container"] > section { border-color: rgba(74,58,43,.09); background-color: #ffffff; box-shadow: 0 9px 28px rgba(74,58,43,.06); }
+.ou-warm [data-testid="revenue-scroll-container"] > .revenue-ledger-section {
+  background-color: transparent;
+  box-shadow: none;
+}
+.ou-warm [data-testid="revenue-scroll-container"] > .revenue-permissions-section {
+  background-color: transparent;
+  box-shadow: none;
+}
 .ou-warm [data-testid="revenue-scroll-container"] > section:first-of-type { border: 0; background: linear-gradient(135deg, #ffdf91, #ffc95e); }
 .ou-warm [data-testid="revenue-scroll-container"] > section:first-of-type .text-content-muted { color: #6f572f; }
 .ou-warm [data-testid="revenue-scroll-container"] select { color: #3e3934; }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BottomNav, type TabId } from './components/layouts'
-import { AssetDetailSheet } from './components/modals'
+import { AppOnboardingModal, AssetDetailSheet } from './components/modals'
 import { Brand, Toast } from './components/ui'
 import { useAppStore, type UserAsset } from './contexts'
 import { acceptOffer, claimTask, confirmVoiceMint, createRecording, deleteVoiceAsset, getOverview, revokeAssetSovereignty } from './lib/api'
@@ -17,6 +17,10 @@ export default function App() {
   const [selectedAsset, setSelectedAsset] = useState<VoiceAsset | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [accepting, setAccepting] = useState(false)
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.localStorage.getItem('ouvoice:onboarding:v1') !== 'seen'
+  })
 
   useEffect(() => {
     let active = true
@@ -46,6 +50,16 @@ export default function App() {
   function navigate(next: TabId) {
     appActions.setCurrentTab(next)
     scrollAppToTop()
+  }
+
+  function closeOnboarding() {
+    window.localStorage.setItem('ouvoice:onboarding:v1', 'seen')
+    setIsOnboardingOpen(false)
+  }
+
+  function completeOnboarding() {
+    closeOnboarding()
+    navigate('record')
   }
 
   async function activateBountyTask(task: VoiceTask) {
@@ -165,7 +179,7 @@ export default function App() {
       <div className="ambient ambient--gold" /><div className="ambient ambient--teal" />
       <div className="app-content h-[calc(100vh-140px)] flex-1 overflow-y-auto pb-24" data-testid="app-scroll-container">
         <div className={appState.currentTab === 'record' ? 'h-full' : 'hidden'} aria-hidden={appState.currentTab !== 'record'}>
-          <RecordScreen task={appState.activeBountyTask ?? undefined} onBack={() => navigate('vault')} onSubmit={submitRecording} onMint={handleMint} standalone />
+          <RecordScreen task={appState.activeBountyTask ?? undefined} onBack={() => navigate('vault')} onSubmit={submitRecording} onMint={handleMint} onOpenGuide={() => setIsOnboardingOpen(true)} standalone />
         </div>
         <div className={appState.currentTab === 'vault' ? 'h-full' : 'hidden'} aria-hidden={appState.currentTab !== 'vault'}>
           <AssetsScreen onInspect={inspectUserAsset} onDelete={handleDeleteAsset} />
@@ -178,6 +192,7 @@ export default function App() {
         </div>
       </div>
       <BottomNav current={appState.currentTab} onChange={navigate} />
+      <AppOnboardingModal open={isOnboardingOpen} onClose={closeOnboarding} onComplete={completeOnboarding} />
       {selectedAsset && <AssetDetailSheet asset={selectedAsset} accepting={accepting} onClose={() => setSelectedAsset(null)} onAccept={handleAccept} onCopy={copy} />}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </main>

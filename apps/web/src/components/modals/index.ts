@@ -1,4 +1,6 @@
 export { AssetDetailSheet } from '../AssetDetailSheet'
+export { AppOnboardingModal } from './AppOnboardingModal'
+export { FeedbackModal } from './FeedbackModal'
 export { TaskDetailSheet } from '../TaskDetailSheet'
 export { VoiceMintingModal } from '../VoiceMintingModal'
 export { VoiceVaultSearchModal } from './VoiceVaultSearchModal'

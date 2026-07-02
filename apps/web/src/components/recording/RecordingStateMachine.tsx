@@ -150,4 +150,3 @@ export function RecordingStateMachine({ onCompleted, onStateChange }: RecordingS
     </section>
   )
 }
-

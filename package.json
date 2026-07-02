@@ -1,0 +1,21 @@
+{
+  "name": "ouvoice-platform",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "concurrently -n web,api -c cyan,magenta \"pnpm --filter @ouvoice/web dev\" \"pnpm --filter @ouvoice/api dev\"",
+    "dev:audio": "cd apps/audio-api && .venv/bin/uvicorn ouvoice_audio_api.main:app --host 0.0.0.0 --port 8790 --reload",
+    "dev:full": "concurrently -n web,api,audio -c cyan,magenta,yellow \"pnpm --filter @ouvoice/web dev\" \"pnpm --filter @ouvoice/api dev\" \"pnpm dev:audio\"",
+    "build": "pnpm -r build",
+    "build:contracts": "pnpm --filter @ouvoice/contracts build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:audio": "cd apps/audio-api && .venv/bin/python -m pytest -q && .venv/bin/mypy ouvoice_audio_api",
+    "db:generate": "pnpm --filter @ouvoice/api db:generate",
+    "db:migrate": "pnpm --filter @ouvoice/api db:migrate"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

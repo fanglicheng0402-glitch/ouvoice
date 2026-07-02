@@ -1,0 +1,10 @@
+{
+  "name": "OuVoice 原声资产采集平台",
+  "short_name": "OuVoice",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E0B06",
+  "theme_color": "#0E0B06",
+  "lang": "zh-CN",
+  "icons": []
+}
